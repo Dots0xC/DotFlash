@@ -316,6 +316,19 @@ namespace CefFlashBrowser.ViewModels
             }
         }
 
+        public bool DisableDirectComposition
+        {
+            get => GlobalData.Settings.DisableDirectComposition;
+            set
+            {
+                if (GlobalData.Settings.DisableDirectComposition != value)
+                {
+                    GlobalData.Settings.DisableDirectComposition = value;
+                    RaisePropertyChanged();
+                }
+            }
+        }
+
         public bool DisableBrowserContextMenu
         {
             get => GlobalData.Settings.DisableBrowserContextMenu;

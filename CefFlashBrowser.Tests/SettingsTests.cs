@@ -38,6 +38,7 @@ namespace CefFlashBrowser.Tests
             Assert.AreEqual(30, settings.RetainedLogCount);
             Assert.IsFalse(settings.DisableBrowserShortcuts);
             Assert.IsFalse(settings.DisableGpuAcceleration);
+            Assert.IsFalse(settings.DisableDirectComposition);
             Assert.IsNull(settings.CustomEmoticon);
             Assert.IsFalse(settings.DisableBrowserContextMenu);
             Assert.AreEqual(UserScriptPermissionBehavior.Prompt, settings.DefaultUserScriptPermissionBehavior);
@@ -164,6 +165,17 @@ namespace CefFlashBrowser.Tests
             settings.SetNullPropertiesToDefault();
 
             Assert.IsNotNull(settings.ProxySettings);
+        }
+
+        [TestMethod]
+        public void DisableDirectComposition_LegacyJsonDefaultsFalseAndRoundTrips()
+        {
+            var legacy = JsonConvert.DeserializeObject<Settings>("{\"Language\":\"en-US\"}");
+            Assert.IsFalse(legacy.DisableDirectComposition);
+
+            var enabled = new Settings { DisableDirectComposition = true };
+            var roundTripped = JObject.FromObject(enabled).ToObject<Settings>();
+            Assert.IsTrue(roundTripped.DisableDirectComposition);
         }
     }
 }

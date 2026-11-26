@@ -97,6 +97,7 @@
     <sys:String x:Key="settings_enableIntegratedDevTools">將開發者工具嵌入至瀏覽器視窗</sys:String>
     <sys:String x:Key="settings_disableFullscreen">阻止網頁進入全螢幕模式</sys:String>
     <sys:String x:Key="settings_disableGpuAcceleration">停用 GPU 加速</sys:String>
+    <sys:String x:Key="settings_disableDirectComposition">停用 DirectComposition</sys:String>
     <sys:String x:Key="settings_disableBrowserContextMenu">停用右鍵選單</sys:String>
 
     <!--主視窗網址列-->

@@ -97,6 +97,7 @@
     <sys:String x:Key="settings_enableIntegratedDevTools">DevTools를 브라우저 창에 포함</sys:String>
     <sys:String x:Key="settings_disableFullscreen">전체 화면 모드 비활성화</sys:String>
     <sys:String x:Key="settings_disableGpuAcceleration">GPU 가속 비활성화</sys:String>
+    <sys:String x:Key="settings_disableDirectComposition">DirectComposition 비활성화</sys:String>
     <sys:String x:Key="settings_disableBrowserContextMenu">컨텍스트 메뉴 비활성화</sys:String>
 
     <!--Navigation bar of main interface-->

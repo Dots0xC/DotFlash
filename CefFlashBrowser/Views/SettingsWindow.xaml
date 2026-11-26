@@ -190,6 +190,13 @@
                         <CheckBox IsChecked="{Binding DisableGpuAcceleration}"/>
                     </c:SettingItem>
 
+                    <!--disable DirectComposition-->
+                    <c:SettingItem Description="{DynamicResource settings_disableDirectComposition}">
+                        <CheckBox x:Name="disableDirectComposition"
+                                  AutomationProperties.Name="DisableDirectComposition"
+                                  IsChecked="{Binding DisableDirectComposition}"/>
+                    </c:SettingItem>
+
                     <!--proxy-->
                     <c:SettingItem Description="{DynamicResource settings_enableProxy}">
                         <CheckBox IsChecked="{Binding EnableProxy}"/>

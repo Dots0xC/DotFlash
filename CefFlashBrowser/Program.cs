@@ -237,12 +237,7 @@ namespace CefFlashBrowser
                 CefSharpSettings.Proxy = new ProxyOptions(proxySettings.IP, proxySettings.Port, proxySettings.UserName, proxySettings.PlainPassword);
             }
 
-            if (GlobalData.Settings.DisableGpuAcceleration)
-            {
-                settings.CefCommandLineArgs["disable-gpu"] = "1";
-                settings.CefCommandLineArgs["disable-gpu-compositing"] = "1";
-                settings.CefCommandLineArgs["disable-gpu-vsync"] = "1";
-            }
+            CefCommandLineHelper.ApplyGpuArguments(settings.CefCommandLineArgs, GlobalData.Settings);
 
 #if !DEBUG
             settings.LogSeverity = LogSeverity.Error;
