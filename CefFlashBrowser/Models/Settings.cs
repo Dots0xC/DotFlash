@@ -143,6 +143,11 @@ namespace CefFlashBrowser.Models
         public bool DisableGpuAcceleration { get; set; }
 
         /// <summary>
+        /// Disable DirectComposition for CEF if set to true
+        /// </summary>
+        public bool DisableDirectComposition { get; set; }
+
+        /// <summary>
         /// Use software rendering for WPF if set to true
         /// </summary>
         public bool DisableGpuAccelerationWPF { get; set; }
@@ -223,6 +228,7 @@ namespace CefFlashBrowser.Models
             RetainedLogCount = 30;
             DisableBrowserShortcuts = false;
             DisableGpuAcceleration = false;
+            DisableDirectComposition = false;
             CustomEmoticon = null;
             DisableBrowserContextMenu = false;
             EnableUserScripts = true;
