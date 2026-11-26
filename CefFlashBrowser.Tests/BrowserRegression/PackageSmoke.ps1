@@ -19,7 +19,7 @@ $packagePath = Join-Path $temporaryPath 'package'
 $databasePath = Join-Path $temporaryPath 'browser.db'
 Write-Host "Isolated package check: $temporaryPath"
 Expand-Archive -LiteralPath $ArchivePath -DestinationPath $packagePath
-foreach ($file in @('CefFlashBrowser.exe', 'Binaries\SQLite\SQLite.Interop.dll',
+foreach ($file in @('CefFlashBrowser.exe', 'Microsoft.Xaml.Behaviors.dll', 'Binaries\SQLite\SQLite.Interop.dll',
     'Binaries\CmdProxy\CmdProxy.exe', 'Binaries\CefSharp\libcef.dll',
     'Binaries\CefSharp\CefSharp.BrowserSubprocess.exe', 'Binaries\Plugins\pepflashplayer.dll',
     'Binaries\Plugins\readme.txt')) {
@@ -68,6 +68,11 @@ $applicationAssembly = [Reflection.Assembly]::LoadFrom((Join-Path $packagePath '
 if ((Test-Path -LiteralPath (Join-Path $packagePath 'Assets\SwfPlayer')) -or
     $applicationAssembly.GetManifestResourceNames() -notcontains 'CefFlashBrowser.Assets.SwfPlayer.swfplayer.html') {
     throw 'The package must embed the SWF player page without an Assets\SwfPlayer directory.'
+}
+if (@($applicationAssembly.GetManifestResourceNames() | Where-Object {
+    $_ -like 'costura.microsoft.xaml.behaviors.dll*'
+}).Count -ne 0) {
+    throw 'The package must not embed Microsoft.Xaml.Behaviors.dll via Costura.'
 }
 # Start Costura's embedded assembly resolver without running the application's entry point.
 [Runtime.CompilerServices.RuntimeHelpers]::RunModuleConstructor($applicationAssembly.ManifestModule.ModuleHandle)

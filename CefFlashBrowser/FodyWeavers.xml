@@ -3,6 +3,7 @@
     <ExcludeAssemblies>
       CefFlashBrowser.Singleton
       CefFlashBrowser.Sol
+      Microsoft.Xaml.Behaviors
     </ExcludeAssemblies>
   </Costura>
 </Weavers>
