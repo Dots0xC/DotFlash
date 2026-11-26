@@ -287,6 +287,29 @@ def positive_int(value):
     return count
 
 
+def fallback_notes(git, head, base_tag=None):
+    range_spec = head
+    if base_tag:
+        base_commit = git.text("rev-parse", "--verify", f"{base_tag}^{{commit}}").strip()
+        if base_commit != head:
+            range_spec = f"{base_commit}..{head}"
+    else:
+        prior = git.run("describe", "--tags", "--abbrev=0", f"{head}^", allowed=(0, 128))
+        if prior.returncode == 0:
+            prior_tag = prior.stdout.decode("utf-8", errors="replace").strip()
+            if prior_tag:
+                range_spec = f"{prior_tag}..{head}"
+
+    log_args = ["log", "--no-merges", "--format=- %s (%h)"]
+    if ".." not in range_spec:
+        log_args.extend(["--max-count=10"])
+    log_args.append(range_spec)
+    lines = [line.strip() for line in git.text(*log_args).splitlines() if line.strip()]
+    if not lines:
+        lines = [f"- Release {head[:7]}"]
+    return "### Changes\n\n" + "\n".join(lines)
+
+
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--repo", type=Path, default=Path.cwd(), help="Git repository directory (default: current directory)")
@@ -309,28 +332,33 @@ def main(argv=None):
     args = parser.parse_args(argv)
     api_key = None
     try:
-        api_key = load_api_key(args.api_key_file)
+        has_api_key = args.api_key_file is not None or bool(os.environ.get("RELEASE_NOTES_API_KEY", "").strip())
+        if has_api_key:
+            api_key = load_api_key(args.api_key_file)
         git = Git(args.repo)
         head = git.text("rev-parse", "--verify", "HEAD^{commit}").strip()
         github = github_repository(args.github_repo) if args.github_repo else git.origin_repository()
-        if api_key in github:
+        if api_key and api_key in github:
             raise HarnessError("A credential appeared in the GitHub repository name.")
         if args.release_tag is not None:
-            if api_key in args.release_tag:
+            if api_key and api_key in args.release_tag:
                 raise HarnessError("A credential appeared in the new release tag.")
             if git.run("check-ref-format", f"refs/tags/{args.release_tag}", allowed=(0, 1)).returncode:
                 raise HarnessError("Expected a valid Git tag for --release-tag.")
-        releases = fetch_releases(github)
-        tag = args.base_tag or (releases[0]["tag"] if releases else None)
-        if not tag:
-            raise HarnessError("No stable GitHub Release found. Specify a local base tag with --base-tag.")
-        if api_key in tag:
-            raise HarnessError("A credential appeared in the base tag.")
-        repository = RepositoryRange(git, tag, head)
-        body = generate_notes(
-            repository, releases, args.api_base_url, args.model, api_key,
-            max_tool_rounds=args.max_tool_rounds, max_tool_calls=args.max_tool_calls,
-        )
+        if api_key is None:
+            body = fallback_notes(git, head, args.base_tag)
+        else:
+            releases = fetch_releases(github)
+            tag = args.base_tag or (releases[0]["tag"] if releases else None)
+            if not tag:
+                raise HarnessError("No stable GitHub Release found. Specify a local base tag with --base-tag.")
+            if api_key in tag:
+                raise HarnessError("A credential appeared in the base tag.")
+            repository = RepositoryRange(git, tag, head)
+            body = generate_notes(
+                repository, releases, args.api_base_url, args.model, api_key,
+                max_tool_rounds=args.max_tool_rounds, max_tool_calls=args.max_tool_calls,
+            )
         if args.release_tag is not None:
             badge_tag = quote(args.release_tag, safe="")
             body = f"![](https://img.shields.io/github/downloads/{github}/{badge_tag}/total)\n\n{body}"

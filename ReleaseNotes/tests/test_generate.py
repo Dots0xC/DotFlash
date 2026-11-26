@@ -298,6 +298,21 @@ class HarnessTests(unittest.TestCase):
                 self.assertEqual(len(requests), 1)
                 source.assert_not_called()
 
+    def test_cli_falls_back_to_git_log_when_api_key_missing(self):
+        out, err = io.StringIO(), io.StringIO()
+        with patch.dict("os.environ", {"RELEASE_NOTES_API_KEY": ""}, clear=False), patch.object(
+            generate, "fetch_releases",
+        ) as releases, redirect_stdout(out), redirect_stderr(err):
+            code = generate.main([
+                "--repo", str(self.root), "--github-repo", "Dots0xC/DotFlash", "--release-tag", "2.0.1",
+            ])
+
+        self.assertEqual((code, err.getvalue()), (0, ""))
+        self.assertIn("![](https://img.shields.io/github/downloads/Dots0xC/DotFlash/2.0.1/total)", out.getvalue())
+        self.assertIn("### Changes", out.getvalue())
+        self.assertIn("feat: add preview", out.getvalue())
+        releases.assert_not_called()
+
 
 if __name__ == "__main__":
     unittest.main()
